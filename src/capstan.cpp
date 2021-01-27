@@ -1,6 +1,6 @@
 #include "capstan.h"
 
-Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux, uint8_t enc, double kp, double ki, double kd)
+Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux, uint8_t enc, double kp, double ki, double kd, double circumference)
     : dir_(dir),
     pwm_(pwm),
     flt_(flt),
@@ -10,6 +10,7 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux,
     kp_(kp),
     ki_(ki),
     kd_(kd),
+    circumference_(circumference),
     pid(&input_, &output_, &setpoint_, kp_, ki_, kd_, DIRECT) {
         pinMode(dir_, OUTPUT);
         pinMode(pwm_, OUTPUT);
@@ -27,14 +28,25 @@ void Capstan::init() {
 }
 
 // gets last known relative angle
-// does not calculate current angle
+// does not recalculate current relative angle
 double Capstan::get_angle() {
     return (revolutions * 360) + current_angle;
 }
 
-// updates setpoint
-void Capstan::set_angle(double setpoint) {
-    setpoint_ = setpoint;
+// updates setpoint in terms of relative capstan angle
+void Capstan::set_angle(double angle) {
+    setpoint_ = angle;
+}
+
+// gets tendon length using last know relative angle
+// does not recalculate current relative angle
+double Capstan::get_length() {
+    return ((revolutions * 360) + current_angle) * (circumference_ / 360);
+}
+
+// updates setpoint in terms of relative tendon length
+void Capstan::set_length(double length) {
+    setpoint_ = (length * 360) / circumference_;
 }
 
 // computes pid control output and updates motor driver
@@ -46,13 +58,6 @@ void Capstan::update() {
     else
         digitalWrite(dir_, HIGH);
     analogWrite(pwm_, abs(output_));
-    Serial.print("set: ");
-    Serial.print(setpoint_);
-    Serial.print(" in: ");
-    Serial.print(input_);
-    Serial.print(" out: ");
-    Serial.print(output_);
-    Serial.println();
 }
 
 // gets angle from encoder

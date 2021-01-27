@@ -3,6 +3,9 @@
 #define KI 0
 #define KD 0
 
+// capstan parameters
+#define CIRCUMFERENCE 314
+
 // motor driver pins
 #define T2_DIR 2
 #define T2_PWM 3
