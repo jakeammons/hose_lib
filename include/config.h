@@ -4,7 +4,9 @@
 #define KD 0
 
 // capstan parameters
-#define CIRCUMFERENCE 314
+#define CIRCUMFERENCE 314 // [mm]
+#define UPDATE_TIME 20 // [ms]
+#define MAX_VELOCITY .01 // [mm/ms]
 
 // motor driver pins
 #define T2_DIR 2

@@ -1,63 +1,89 @@
 #include "capstan.h"
 
-Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux, uint8_t enc, double kp, double ki, double kd, double circumference)
-    : dir_(dir),
-    pwm_(pwm),
-    flt_(flt),
-    cs_(cs),
-    mux_(mux),
-    enc_(enc),
-    kp_(kp),
-    ki_(ki),
-    kd_(kd),
-    circumference_(circumference),
-    pid(&input_, &output_, &setpoint_, kp_, ki_, kd_, DIRECT) {
-        pinMode(dir_, OUTPUT);
-        pinMode(pwm_, OUTPUT);
-        pinMode(flt_, INPUT);
-        pinMode(cs_, INPUT);
+Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux, uint8_t enc, double kp, double ki, double kd, double circumference, uint16_t update_time, double max_velocity)
+    : _dir(dir),
+    _pwm(pwm),
+    _flt(flt),
+    _cs(cs),
+    _mux(mux),
+    _enc(enc),
+    _kp(kp),
+    _ki(ki),
+    _kd(kd),
+    _circumference(circumference),
+    _update_time(update_time),
+    _max_velocity(max_velocity),
+    pid(&_input, &_output, &_setpoint, _kp, _ki, _kd, DIRECT) {
+        pinMode(_dir, OUTPUT);
+        pinMode(_pwm, OUTPUT);
+        pinMode(_flt, INPUT);
+        pinMode(_cs, INPUT);
     }
 
 void Capstan::init() {
     select_channel();
-    ams5600.setStartPosition();
     pid.SetOutputLimits(-255, 255);
-    input_ = calc_angle();
-    setpoint_ = 0;
+    _input = calc_angle();
+    _setpoint = _input;
+    set_length(0, 5000);
     pid.SetMode(AUTOMATIC);
 }
 
-// gets last known relative angle
+// returns last known relative angle
 // does not recalculate current relative angle
 double Capstan::get_angle() {
-    return (revolutions * 360) + current_angle;
+    return (_revolutions * 360) + _current_angle;
 }
 
 // updates setpoint in terms of relative capstan angle
 void Capstan::set_angle(double angle) {
-    setpoint_ = angle;
+    _setpoint = angle;
 }
 
-// gets tendon length using last know relative angle
+// returns tendon length using last know relative angle
 // does not recalculate current relative angle
 double Capstan::get_length() {
-    return ((revolutions * 360) + current_angle) * (circumference_ / 360);
+    return ((_revolutions * 360) + _current_angle) * (_circumference / 360);
 }
 
-// updates setpoint in terms of relative tendon length
-void Capstan::set_length(double length) {
-    setpoint_ = (length * 360) / circumference_;
+// updates target tendon length relative to zero position
+// interpolates tendon length changes over set duration
+// target_length in mm
+// duration in ms
+void Capstan::set_length(double target_length, uint32_t duration) {
+    double delta = target_length - get_length();
+    double velocity = delta / duration; // [mm/ms]
+    // TODO account for negative velocities
+    /*
+    if (velocity > _max_velocity) {
+        velocity = _max_velocity;
+        duration = target_length / velocity;
+    }
+    */
+    _updates = duration / _update_time;
+    _update_length = delta / _updates;
+    _timer = millis();
+}
+
+// updates setpoint by interpolating relative tendon length over time
+void Capstan::update_length() {
+    _setpoint += (_update_length * 360) / _circumference;
+    _updates--;
 }
 
 // computes pid control output and updates motor driver
 void Capstan::update() {
-    input_ = calc_angle();
+    if (_updates && millis() > _timer) {
+        update_length();
+        _timer = millis() + _update_time;
+    }
+    _input = calc_angle();
     pid.Compute();
-    if (output_ > 0)
-        digitalWrite(dir_, LOW);
+    if (_output > 0)
+        digitalWrite(_dir, LOW);
     else
-        digitalWrite(dir_, HIGH);
-    analogWrite(pwm_, abs(output_));
+        digitalWrite(_dir, HIGH);
+    analogWrite(_pwm, abs(_output));
 }
 
 // gets angle from encoder
@@ -66,26 +92,26 @@ double Capstan::calc_angle()
 {
     // get current value (0-4096) from encoder and convert to angle (0-360)
     select_channel();
-    current_angle = ams5600.getScaledAngle() * (double) 360/4096;
+    _current_angle = ams5600.getScaledAngle() * (double) 360/4096;
     // clamp angle to between 0 and 360
-    if (current_angle < 0)
-        current_angle = 0;
-    if (current_angle > 360)
-        current_angle = 360;
+    if (_current_angle < 0)
+        _current_angle = 0;
+    if (_current_angle > 360)
+        _current_angle = 360;
     // check if angle has crossed zero and adjust revolution count
-    if (current_angle < 90 && previous_angle > 270)
-        revolutions++;
-    if (current_angle > 270 && previous_angle < 90)
-        revolutions--;
-    previous_angle = current_angle;
+    if (_current_angle < 90 && _previous_angle > 270)
+        _revolutions++;
+    if (_current_angle > 270 && _previous_angle < 90)
+        _revolutions--;
+    _previous_angle = _current_angle;
     // return angle relative to zero
-    return (revolutions * 360) + current_angle;
+    return (_revolutions * 360) + _current_angle;
 }
 
 void Capstan::select_channel() 
 {
     // write mux channel address to bus
-    Wire.beginTransmission(mux_);
-    Wire.write(1 << enc_);
+    Wire.beginTransmission(_mux);
+    Wire.write(1 << _enc);
     Wire.endTransmission();  
 }
