@@ -65,10 +65,8 @@ void Capstan::set_length(double target_length, uint32_t duration) {
     _timer = millis();
 }
 
-// updates setpoint by interpolating relative tendon length over time
-void Capstan::update_length() {
-    _setpoint += (_update_length * 360) / _circumference;
-    _updates--;
+double Capstan::get_current() {
+    return analogRead(_cs) * 100 + 5;
 }
 
 // computes pid control output and updates motor driver
@@ -114,4 +112,10 @@ void Capstan::select_channel()
     Wire.beginTransmission(_mux);
     Wire.write(1 << _enc);
     Wire.endTransmission();  
+}
+
+// updates setpoint by interpolating relative tendon length over time
+void Capstan::update_length() {
+    _setpoint += (_update_length * 360) / _circumference;
+    _updates--;
 }

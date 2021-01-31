@@ -17,6 +17,7 @@ class Capstan {
         void set_angle(double angle);
         double get_length();
         void set_length(double length, uint32_t duration);
+        double get_current();
         void update();
     private:
         uint8_t _dir; // capstan motor driver direction pin
