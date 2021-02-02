@@ -13,6 +13,12 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux,
     _circumference(circumference),
     _update_time(update_time),
     _max_velocity(max_velocity),
+    _previous_angle(0),
+    _current_angle(0),
+    _revolutions(0),
+    _updates(0),
+    _update_length(0),
+    _timer(0),
     pid(&_input, &_output, &_setpoint, _kp, _ki, _kd, DIRECT) {
         pinMode(_dir, OUTPUT);
         pinMode(_pwm, OUTPUT);
@@ -22,7 +28,8 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux,
 
 void Capstan::init() {
     select_channel();
-    pid.SetOutputLimits(-255, 255);
+    pid.SetOutputLimits(-255, 255); // gives both direction and magnitude with full pwm resolution
+    pid.SetSampleTime(1); // 1 ms
     _input = calc_angle();
     _setpoint = _input;
     set_length(0, 5000);
