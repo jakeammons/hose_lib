@@ -5,8 +5,12 @@
 
 // capstan parameters
 #define CIRCUMFERENCE 314 // [mm]
-#define UPDATE_TIME 20 // [ms]
 #define MAX_VELOCITY .01 // [mm/ms]
+
+// hose parameters
+#define NUM_CAPSTANS 3 // number of capstans/tendons connected to hose
+#define TENDON_DISTANCE 30 // distance between tendon and backbone [mm]
+#define UPDATE_TIME 20 // time between interpolation updates [ms]
 
 // motor driver pins
 #define T2_DIR 2

@@ -1,16 +1,16 @@
 
 /****************************************************
-/* AMS 5600 class for Arduino platform
-/* Author: Tom Denton
-/* Date: 15 Dec 2014
-/* File: AMS_5600.h 
-/* Version 1.00
-/* www.ams.com
-/*  
-/* Description:  This class has been designed to
-/* access the AMS 5600 “potuino” shield.
-/*
-/***************************************************/
+** AMS 5600 class for Arduino platform
+** Author: Tom Denton
+** Date: 15 Dec 2014
+** File: AMS_5600.h 
+** Version 1.00
+** www.ams.com
+**  
+** Description:  This class has been designed to
+** access the AMS 5600 “potuino” shield.
+**
+****************************************************/
 
 #ifndef AMS_5600_h
 #define AMS_5600_h
@@ -24,13 +24,13 @@ class AMS_5600
     AMS_5600(void);
     int getAddress();       
     
-    word setMaxAngle(word newMaxAngle = -1);
+    word setMaxAngle(int32_t newMaxAngle = -1);
     word getMaxAngle();
     
-    word setStartPosition(word startAngle = -1);
+    word setStartPosition(int32_t startAngle = -1);
     word getStartPosition();
     
-    word setEndPosition(word endAngle = -1);
+    word setEndPosition(int32_t endAngle = -1);
     word getEndPosition();
     
     word getRawAngle();
