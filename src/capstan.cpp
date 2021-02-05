@@ -25,8 +25,19 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux,
         pinMode(_cs, INPUT);
     }
 
-void Capstan::init() {
+void Capstan::init(uint8_t id, bool reset_zero) {
+    uint16_t encoder_zero;
     select_channel();
+    if (reset_zero)
+    {
+        encoder_zero = ams5600.setStartPosition();
+        EEPROM.put(id, encoder_zero);
+    }
+    else
+    {
+        EEPROM.get(id, encoder_zero);
+        ams5600.setStartPosition(encoder_zero);
+    }
     pid.SetOutputLimits(-255, 255); // gives both direction and magnitude with full pwm resolution
     pid.SetSampleTime(1); // 1 ms
     _input = calc_angle();

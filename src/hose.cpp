@@ -21,12 +21,13 @@ void Hose::add_capstan(Capstan *capstan) {
 }
 
 // initializes interpolation targets and capstan positions
-void Hose::init() {
+// reset_zero causes the current tendon lengths to be saved as "home"
+void Hose::init(bool reset_zero) {
     // get current tendon lengths
     // calculate kinematic parameters from tendon lengths
     // set interpolation target to home configuration (straight)
     for (int i = 0; i < _num_capstans; i++)
-        _capstans[i]->init();
+        _capstans[i]->init(i, reset_zero);
     set_parameters_s_k_phi(740, .0000001, 0, 5000);
 }
 
@@ -60,10 +61,7 @@ void Hose::update() {
     for (int i = 0; i < _num_capstans; i++)
     {
         _capstans[i]->update();
-        // Serial.print(_capstans[i]->get_length());
-        // Serial.print(",");
     }
-    // Serial.println();
 }
 
 // updates tendon lengths by interpolating kinematic parameters over time

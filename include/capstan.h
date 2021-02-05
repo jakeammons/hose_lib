@@ -5,6 +5,7 @@
 #include <PID_v1.h>
 #include <AS5600.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 // provides encoder, motor driver, and pid control functions
 // setpoint and input are relative angle in signed degrees (-inf, inf)
@@ -12,7 +13,7 @@
 class Capstan {
     public:
         Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, uint8_t mux, uint8_t enc, double kp, double ki, double kd, double circumference, double max_velocity);
-        void init();
+        void init(uint8_t id, bool reset_zero);
         double get_angle();
         void set_angle(double angle);
         double get_length();

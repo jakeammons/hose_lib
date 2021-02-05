@@ -18,7 +18,7 @@ void setup() {
     hose.add_capstan(&capstan_1);
     hose.add_capstan(&capstan_2);
     hose.add_capstan(&capstan_3);
-    hose.init();
+    hose.init(false); // do not reset encoder zero positions
 }
 
 void loop() {
@@ -35,7 +35,7 @@ void setup_communication() {
     TCCR1B = (TCCR1B & B11111000) | B00000001;
     // initialize i2c and UART
     Wire.begin();
-    Serial.begin(115200);
+    Serial.begin(9600);
 }
 
 void process_command()

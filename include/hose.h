@@ -12,7 +12,7 @@ class Hose {
     public:
         Hose(double tendon_distance, uint16_t update_time);
         void add_capstan(Capstan *capstan);
-        void init();
+        void init(bool reset_zero);
         S_K_Phi get_parameters_s_k_phi();
         void set_parameters_s_k_phi(double s, double k, double phi, double duration);
         void update();
