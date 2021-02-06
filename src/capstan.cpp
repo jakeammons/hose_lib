@@ -31,11 +31,11 @@ void Capstan::init(uint8_t id, bool reset_zero) {
     if (reset_zero)
     {
         encoder_zero = ams5600.setStartPosition();
-        EEPROM.put(id, encoder_zero);
+        EEPROM.put(id * 2, encoder_zero); // 2 bytes per encoder zero value
     }
     else
     {
-        EEPROM.get(id, encoder_zero);
+        EEPROM.get(id * 2, encoder_zero);
         ams5600.setStartPosition(encoder_zero);
     }
     pid.SetOutputLimits(-255, 255); // gives both direction and magnitude with full pwm resolution
