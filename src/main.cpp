@@ -19,13 +19,21 @@ void setup() {
     hose.add_capstan(&capstan_1);
     hose.add_capstan(&capstan_2);
     hose.add_capstan(&capstan_3);
-    hose.init(false); // do not reset encoder zero positions
+    // calculates current configuration and interpolates to home position
+    // IMPORTANT: phi stays the same after interpolation
+    // you may want to interpolate to new phi after hose returns home
+    hose.init(false); // argument of false means don't reset encoder zero positions
 }
 
 void loop() {
     process_command();
     hose.update();
-    Serial.println(capstan_1.get_current());
+    S_K_Phi parameters = hose.get_parameters();
+    Serial.print(parameters.s);
+    Serial.print(",");
+    Serial.print(parameters.k, 4);
+    Serial.print(",");
+    Serial.println(parameters.phi * 180 / M_PI);
 }
 
 void setup_communication() {
