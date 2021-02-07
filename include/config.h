@@ -11,6 +11,9 @@
 #define NUM_CAPSTANS 3 // number of capstans/tendons connected to hose
 #define TENDON_DISTANCE 30 // distance between tendon and backbone [mm]
 #define UPDATE_TIME 20 // time between interpolation updates [ms]
+#define DEFAULT_S 825 // starting backbone length [mm]
+#define DEFAULT_K .0000001 // starting curvature [mm^-1]
+#define DEFAULT_PHI 0 // starting bending plane [radians]
 
 // motor driver pins
 #define T2_DIR 2

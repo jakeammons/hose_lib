@@ -71,9 +71,19 @@ void Capstan::set_length(double length) {
 }
 
 // returns motor driver current
+// takes 100 samples from motor driver current sensor and returns max reading
+// max reading seems to be less susceptible to noise than average reading
 // returns amps
 double Capstan::get_current() {
-    return (analogRead(_cs) * 100) + 5;
+    uint16_t reading = analogRead(_cs);
+    uint16_t max = reading;
+    for (int i = 0; i < 100; i++)
+    {
+        reading = analogRead(_cs);
+        if (reading > max)
+            max = reading;
+    }
+    return (max * (double) 5 / 1024) * 100 + 5;
 }
 
 // computes pid control output and updates motor driver
