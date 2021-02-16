@@ -22,7 +22,8 @@ void setup() {
     // calculates current configuration and interpolates to home position
     // IMPORTANT: phi stays the same after interpolation
     // you may want to interpolate to new phi after hose returns home
-    hose.init(false); // argument of false means don't reset encoder zero positions
+    // argument of false means don't reset encoder zero positions
+    hose.init(false);
 }
 
 void loop() {

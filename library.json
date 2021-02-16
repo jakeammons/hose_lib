@@ -1,0 +1,33 @@
+{
+    "name": "hose_lib",
+    "version": "1.0.0",
+    "description": "Provides continuum kinematics, capstan tendon control, relative encoding from an absolute encoder, and calibration of home position",
+    "keywords": "continuum, kinematics, hose, tendons, capstans, encoding",
+    "repository":
+    {
+        "type": "git",
+        "url": "https://github.com/jakeammons/hose_lib"
+    },
+    "authors":
+    [
+        {
+            "name": "Jake Ammons",
+            "email": "jlammon@clemson.edu",
+            "url": "https://www.jakeammons.com/contact/",
+            "maintainer": true
+        }
+    ],
+    "dependencies": 
+    [
+        {
+            "owner": "br3ttb",
+            "name": "PID"
+        },
+        {
+            "name": "external-repo",
+            "version": "https://github.com/Seeed-Studio/Seeed_Arduino_AS5600"
+        }
+    ],
+    "frameworks": "*",
+    "platforms": "*"
+}
