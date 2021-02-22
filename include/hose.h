@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <capstan.h>
 
+#define MAX_CAPSTANS 9
+
 struct S_K_Phi {
     S_K_Phi(double s_in, double k_in, double phi_in) : s(s_in), k(k_in), phi(phi_in) { }
     S_K_Phi(const S_K_Phi& in) : s(in.s), k(in.k), phi(in.phi) { }
@@ -28,7 +30,7 @@ class Hose {
         uint16_t _update_time; // time between setpoint updates during interpolation [ms]
         uint32_t _updates; // number of updates remaining in interpolation
         uint32_t _timer; // timer used to interpolate change in parameters [ms]
-        Capstan *_capstans[256];
+        Capstan *_capstans[MAX_CAPSTANS];
         void update_parameters();
 };
 

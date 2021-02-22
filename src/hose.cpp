@@ -12,8 +12,11 @@ Hose::Hose(S_K_Phi parameters, double tendon_distance, uint16_t update_time)
 
 // add capstan/tendon to kinematic model and control
 void Hose::add_capstan(Capstan *capstan) {
-    _capstans[_num_capstans] = capstan;
-    _num_capstans++;
+    if (_num_capstans < MAX_CAPSTANS)
+    {
+        _capstans[_num_capstans] = capstan;
+        _num_capstans++;
+    }
 }
 
 // initializes capstan positions
