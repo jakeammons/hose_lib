@@ -22,7 +22,7 @@ void Hose::add_capstan(Capstan *capstan) {
 // reset_zero causes the current tendon lengths to be saved as "home"
 // only interpolates to home if not in "reset zero" mode
 void Hose::init(bool reset_zero) {
-    for (int i = 0; i < _num_capstans; i++)
+    for (uint8_t i = 0; i < _num_capstans; i++)
         _capstans[i]->init(i, reset_zero);
     if (!reset_zero)
     {
@@ -36,11 +36,11 @@ void Hose::init(bool reset_zero) {
 // returns s, k, and phi in mm, mm^-1, and radians
 S_K_Phi Hose::get_parameters() {
     double tendon_lengths[_num_capstans];
-    for (int i = 0; i < _num_capstans; i++)
+    for (uint8_t i = 0; i < _num_capstans; i++)
         tendon_lengths[i] = _parameters.s + _capstans[i]->get_length();
     // s = (sum of tendon lengths) / (number of tendons)
     double s = 0;
-    for (int i = 0; i < _num_capstans; i++)
+    for (uint8_t i = 0; i < _num_capstans; i++)
         s += tendon_lengths[i];
     s /= _num_capstans;
     // TODO: generalize k and phi calculations to any number of tendons
@@ -73,13 +73,11 @@ void Hose::set_parameters(S_K_Phi parameters, double duration) {
 // updates interpolation and tendon lengths
 void Hose::update() {
     if (_updates && millis() > _timer) {
-        update_parameters();
         _timer = millis() + _update_time;
+        update_parameters();
     }
-    for (int i = 0; i < _num_capstans; i++)
-    {
+    for (uint8_t i = 0; i < _num_capstans; i++)
         _capstans[i]->update();
-    }
 }
 
 // updates tendon lengths by interpolating kinematic parameters over time
@@ -87,14 +85,11 @@ void Hose::update_parameters() {
     _parameters.s += _parameter_increments.s;
     _parameters.k += _parameter_increments.k;
     _parameters.phi += _parameter_increments.phi;
-    for (int i = 0; i < _num_capstans; i++)
+    for (uint8_t i = 0; i < _num_capstans; i++)
     {
         double angle = ((i * (360 / _num_capstans)) - 360) * M_PI / 180;
         double tendon_length = _parameters.s * (1 - _tendon_distance * _parameters.k * cos(angle - _parameters.phi));
         _capstans[i]->set_length(tendon_length - _parameters.s);
-        // Serial.print(tendon_length);
-        // Serial.print(",");
     }
-    // Serial.println();
     _updates--;
 }

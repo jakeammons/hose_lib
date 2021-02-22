@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <capstan.h>
-#include <config.h>
 
 struct S_K_Phi {
     S_K_Phi(double s_in, double k_in, double phi_in) : s(s_in), k(k_in), phi(phi_in) { }
@@ -29,7 +28,7 @@ class Hose {
         uint16_t _update_time; // time between setpoint updates during interpolation [ms]
         uint32_t _updates; // number of updates remaining in interpolation
         uint32_t _timer; // timer used to interpolate change in parameters [ms]
-        Capstan *_capstans[NUM_CAPSTANS];
+        Capstan *_capstans[256];
         void update_parameters();
 };
 
