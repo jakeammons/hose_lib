@@ -13,7 +13,7 @@
 // output is duty cycle in signed pwm values (-255, 255)
 class Capstan {
     public:
-        Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, double ki, double kd, double circumference, double max_velocity, Encoder *enc);
+        Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, double ki, double kd, double circumference, double max_velocity, int direction, Encoder *enc);
         void init(uint8_t id, bool reset_zero);
         double get_angle();
         void set_angle(double angle);

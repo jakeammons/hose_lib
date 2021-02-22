@@ -1,6 +1,6 @@
 #include "capstan.h"
 
-Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, double ki, double kd, double circumference, double max_velocity, Encoder *enc)
+Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, double ki, double kd, double circumference, double max_velocity, int direction, Encoder *enc)
     : _dir(dir),
     _pwm(pwm),
     _flt(flt),
@@ -17,7 +17,7 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, d
     _circumference(circumference),
     _max_velocity(max_velocity),
     encoder(enc),
-    pid(&_input, &_output, &_setpoint, _kp, _ki, _kd, DIRECT) {
+    pid(&_input, &_output, &_setpoint, _kp, _ki, _kd, direction) {
         pinMode(_dir, OUTPUT);
         pinMode(_pwm, OUTPUT);
         pinMode(_flt, INPUT);

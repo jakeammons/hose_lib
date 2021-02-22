@@ -9,9 +9,9 @@ void setup_communication();
 Encoder *magnetic_encoder_1 = new MagneticEncoder(MUX_ADDR, T1_ENC);
 Encoder *magnetic_encoder_2 = new MagneticEncoder(MUX_ADDR, T2_ENC);
 Encoder *magnetic_encoder_3 = new MagneticEncoder(MUX_ADDR, T3_ENC);
-Capstan capstan_1(T1_DIR, T1_PWM, T1_FLT, T1_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, magnetic_encoder_1);
-Capstan capstan_2(T2_DIR, T2_PWM, T2_FLT, T2_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, magnetic_encoder_2);
-Capstan capstan_3(T3_DIR, T3_PWM, T3_FLT, T3_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, magnetic_encoder_3);
+Capstan capstan_1(T1_DIR, T1_PWM, T1_FLT, T1_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, magnetic_encoder_1);
+Capstan capstan_2(T2_DIR, T2_PWM, T2_FLT, T2_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, magnetic_encoder_2);
+Capstan capstan_3(T3_DIR, T3_PWM, T3_FLT, T3_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, magnetic_encoder_3);
 S_K_Phi parameters(DEFAULT_S, DEFAULT_K, DEFAULT_PHI);
 Hose hose(parameters, TENDON_DISTANCE, UPDATE_TIME);
 
