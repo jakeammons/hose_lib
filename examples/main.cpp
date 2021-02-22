@@ -1,13 +1,11 @@
 #include <Arduino.h>
 #include <wire.h>
-#include "capstan.h"
 #include "config.h"
 #include "hose.h"
 
 void process_command();
 void setup_communication();
 
-// capstan constructor sets starting encoder position as zero
 Encoder *magnetic_encoder_1 = new MagneticEncoder(MUX_ADDR, T1_ENC);
 Encoder *magnetic_encoder_2 = new MagneticEncoder(MUX_ADDR, T2_ENC);
 Encoder *magnetic_encoder_3 = new MagneticEncoder(MUX_ADDR, T3_ENC);
