@@ -1,19 +1,19 @@
 // capstan position control gains
-#define KP 12
-#define KI 0
-#define KD 0
+#define KP 12.0
+#define KI 0.0
+#define KD 0.0
 
 // capstan parameters
-#define CIRCUMFERENCE 314 // [mm]
+#define CIRCUMFERENCE 314.0 // [mm]
 #define MAX_VELOCITY .01 // [mm/ms]
 
 // hose parameters
 #define NUM_CAPSTANS 3 // number of capstans/tendons connected to hose
-#define TENDON_DISTANCE 30 // distance between tendon and backbone [mm]
-#define UPDATE_TIME 20 // time between interpolation updates [ms]
-#define DEFAULT_S 825 // starting backbone length [mm]
+#define TENDON_DISTANCE 30.0 // distance between tendon and backbone [mm]
+#define UPDATE_TIME 20.0 // time between interpolation updates [ms]
+#define DEFAULT_S 825.0 // starting backbone length [mm]
 #define DEFAULT_K .0000001 // starting curvature [mm^-1]
-#define DEFAULT_PHI 0 // starting bending plane [radians]
+#define DEFAULT_PHI 0.0 // starting bending plane [radians]
 
 // motor driver pins
 #define T2_DIR 2

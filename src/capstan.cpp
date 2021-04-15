@@ -5,15 +5,12 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, d
     _pwm(pwm),
     _flt(flt),
     _cs(cs),
-    _setpoint(0),
-    _input(0),
-    _output(0),
+    _setpoint(0.0),
+    _input(0.0),
+    _output(0.0),
     _kp(kp),
     _ki(ki),
     _kd(kd),
-    _previous_angle(0),
-    _current_angle(0),
-    _revolutions(0),
     _circumference(circumference),
     _max_velocity(max_velocity),
     encoder(enc),
@@ -26,8 +23,8 @@ Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, d
 
 void Capstan::init(uint8_t id, bool reset_zero) {
     encoder->init(id, reset_zero);
-    pid.SetOutputLimits(-255, 255); // gives both direction and magnitude with full pwm resolution
-    pid.SetSampleTime(1); // 1 ms
+    pid.SetOutputLimits(-255.0, 255.0); // gives both direction and magnitude with full pwm resolution
+    pid.SetSampleTime(1.0); // 1 ms
     _input = encoder->get_angle();
     _setpoint = _input;
     pid.SetMode(AUTOMATIC);
@@ -42,13 +39,13 @@ void Capstan::set_angle(double angle) {
 // does not recalculate current relative angle
 // returns mm
 double Capstan::get_length() {
-    return encoder->get_angle() * (_circumference / 360);
+    return encoder->get_angle() * (_circumference / 360.0);
 }
 
 // updates tendon length relative to zero position
 // length in mm
 void Capstan::set_length(double length) {
-    _setpoint = (length * 360) / _circumference;
+    _setpoint = (length * 360.0) / _circumference;
 }
 
 // returns motor driver current
@@ -58,20 +55,20 @@ void Capstan::set_length(double length) {
 double Capstan::get_current() {
     uint16_t reading = analogRead(_cs);
     uint16_t max = reading;
-    for (int i = 0; i < 100; i++)
+    for (uint8_t i = 0; i < 100; i++)
     {
         reading = analogRead(_cs);
         if (reading > max)
             max = reading;
     }
-    return (max * (double) 5 / 1024) * 100 + 5;
+    return (max * 5.0 / 1024.0) * 100.0 + 5.0;
 }
 
 // computes pid control output and updates motor driver
 void Capstan::update() {
     _input = encoder->get_angle();
     pid.Compute();
-    if (_output > 0)
+    if (_output > 0.0)
         digitalWrite(_dir, LOW);
     else
         digitalWrite(_dir, HIGH);

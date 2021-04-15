@@ -6,8 +6,8 @@
 MagneticEncoder::MagneticEncoder(uint8_t mux, uint8_t enc)
     : _mux(mux),
     _enc(enc),
-    _previous_angle(0),
-    _current_angle(0),
+    _previous_angle(0.0),
+    _current_angle(0.0),
     _revolutions(0) { 
     }
 
@@ -40,7 +40,7 @@ void MagneticEncoder::init(uint8_t id, bool reset_zero) {
 // relative to home position
 // returns degrees
 double MagneticEncoder::get_angle() {
-    return (_revolutions * 360) + _current_angle;
+    return _revolutions * 360.0 + _current_angle;
 }
 
 // gets angle from encoder
@@ -49,20 +49,20 @@ double MagneticEncoder::calc_angle()
 {
     // get current value (0-4096) from encoder and convert to angle (0-360)
     select_channel();
-    _current_angle = ams5600.getScaledAngle() * (double) 360/4096;
+    _current_angle = ams5600.getScaledAngle() * 360.0/4096.0;
     // clamp angle to between 0 and 360
-    if (_current_angle < 0)
-        _current_angle = 0;
-    if (_current_angle > 360)
-        _current_angle = 360;
+    if (_current_angle < 0.0)
+        _current_angle = 0.0;
+    if (_current_angle > 360.0)
+        _current_angle = 360.0;
     // check if angle has crossed zero and adjust revolution count
-    if (_current_angle < 90 && _previous_angle > 270)
+    if (_current_angle < 90.0 && _previous_angle > 270.0)
         _revolutions++;
-    if (_current_angle > 270 && _previous_angle < 90)
+    if (_current_angle > 270.0 && _previous_angle < 90.0)
         _revolutions--;
     _previous_angle = _current_angle;
     // return angle relative to zero
-    return (_revolutions * 360) + _current_angle;
+    return (_revolutions * 360.0) + _current_angle;
 }
 
 // write mux channel address to i2c bus
@@ -98,5 +98,5 @@ void QuadratureEncoder::init(uint8_t id, bool reset_zero) {
 // relative to position at startup
 // returns degrees
 double QuadratureEncoder::get_angle() {
-    return encoder.getEncoderCount() / _ppr * 360;
+    return ((double) encoder.getEncoderCount() / _ppr) * 360;
 }

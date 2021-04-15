@@ -27,10 +27,7 @@ class Capstan {
         uint8_t _flt; // capstan motor driver fault pin
         uint8_t _cs; // capstan motor driver current sense pin
         double _setpoint, _input, _output; // pid input/output
-        double _kp = 0, _ki = 0, _kd = 0; // pid gains
-        double _previous_angle; // absolute angle of last reading [deg]
-        double _current_angle; // absolute angle of current reading [deg]
-        int8_t _revolutions; // number of full revolutions relative to zero
+        double _kp, _ki, _kd; // pid gains
         double _circumference; // capstan circumference [mm]
         double _max_velocity; // maximum velocity allowed for tendon movements [mm/ms]
         Encoder *encoder;

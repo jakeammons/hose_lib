@@ -9,7 +9,7 @@
 struct S_K_Phi {
     S_K_Phi(double s_in, double k_in, double phi_in) : s(s_in), k(k_in), phi(phi_in) { }
     S_K_Phi(const S_K_Phi& in) : s(in.s), k(in.k), phi(in.phi) { }
-    S_K_Phi() : s(0), k(0), phi(0) { }
+    S_K_Phi() : s(0.0), k(0.0), phi(0.0) { }
     double s, k, phi;
 };
 
