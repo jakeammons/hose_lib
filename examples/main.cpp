@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <wire.h>
 #include "config.h"
-#include "hose.h"
+#include "kinematics.h"
 
 void process_command();
 void setup_communication();
@@ -13,24 +13,25 @@ Capstan capstan_1(T1_DIR, T1_PWM, T1_FLT, T1_CS, KP, KI, KD, CIRCUMFERENCE, MAX_
 Capstan capstan_2(T2_DIR, T2_PWM, T2_FLT, T2_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_2);
 Capstan capstan_3(T3_DIR, T3_PWM, T3_FLT, T3_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_3);
 S_K_Phi parameters(DEFAULT_S, DEFAULT_K, DEFAULT_PHI);
-Hose hose(parameters, TENDON_DISTANCE, UPDATE_TIME);
+Kinematics kinematics(parameters, TENDON_DISTANCE, UPDATE_TIME);
 
 void setup() {
     setup_communication();
-    hose.add_capstan(&capstan_1);
-    hose.add_capstan(&capstan_2);
-    hose.add_capstan(&capstan_3);
+    kinematics.add_capstan(&capstan_1);
+    kinematics.add_capstan(&capstan_2);
+    kinematics.add_capstan(&capstan_3);
     // calculates current configuration and interpolates to home position
     // IMPORTANT: phi stays the same after interpolation
-    // you may want to interpolate to new phi after hose returns home
+    // you may want to interpolate to new phi after robot returns home
     // argument of false means don't reset encoder zero positions
-    hose.init(false);
+    kinematics.init(false);
 }
 
 void loop() {
     process_command();
-    hose.update();
-    S_K_Phi parameters = hose.get_parameters();
+    kinematics.update();
+    S_K_Phi parameters;
+    kinematics.get_parameters(parameters);
     Serial.print(parameters.s);
     Serial.print(",");
     Serial.print(parameters.k, 4);
@@ -69,7 +70,7 @@ void process_command()
         double phi = atof(char_buffers[2]);
         S_K_Phi parameters(s, k, phi);
         double duration = atof(char_buffers[3]);
-        hose.set_parameters(parameters, duration);
+        kinematics.set_parameters(parameters, duration);
     }
 }
 
