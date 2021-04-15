@@ -45,9 +45,18 @@ void Kinematics::init(bool reset_zero) {
         _capstans[i]->init(i, reset_zero);
     if (!reset_zero)
     {
-        get_parameters(_s_k_phi_parameters);
-        S_K_Phi parameters(_s_k_phi_parameters.s, .0000001, _s_k_phi_parameters.phi);
-        set_parameters(parameters, 5000.0);
+        if (_mode == S_U_V_MODE)
+        {
+                get_parameters(_s_u_v_parameters);
+                S_U_V parameters(_s_u_v_parameters.s, 0.0, 0.0);
+                set_parameters(parameters, 5000.0);
+        }
+        else if (_mode == S_K_PHI_MODE)
+        {
+                get_parameters(_s_k_phi_parameters);
+                S_K_Phi parameters(_s_k_phi_parameters.s, .0000001, _s_k_phi_parameters.phi);
+                set_parameters(parameters, 5000.0);
+        }
     }
 }
 
@@ -140,8 +149,8 @@ void Kinematics::update() {
 
 // updates tendon lengths by interpolating kinematic parameters over time
 void Kinematics::update_parameters() {
-    switch (_mode) {
-        case S_U_V_MODE:
+    if (_mode == S_U_V_MODE)
+    {
             _s_u_v_parameters.s += _s_u_v_parameter_increments.s;
             _s_u_v_parameters.u += _s_u_v_parameter_increments.u;
             _s_u_v_parameters.v += _s_u_v_parameter_increments.v;
@@ -150,9 +159,10 @@ void Kinematics::update_parameters() {
             l[1] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v + sqrt(3) * _s_u_v_parameters.u);
             l[2] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v - sqrt(3) * _s_u_v_parameters.u);
             for (uint8_t i = 0; i < 3; i++)
-                _capstans[i]->set_length(l[i]);
-            break;
-        case S_K_PHI_MODE:
+                _capstans[i]->set_length(l[i] - _s_u_v_parameters.s);
+    }
+    else if (_mode == S_K_PHI_MODE)
+    {
             _s_k_phi_parameters.s += _s_k_phi_parameter_increments.s;
             _s_k_phi_parameters.k += _s_k_phi_parameter_increments.k;
             _s_k_phi_parameters.phi += _s_k_phi_parameter_increments.phi;
@@ -162,7 +172,6 @@ void Kinematics::update_parameters() {
                 double tendon_length = _s_k_phi_parameters.s * (1 - _tendon_distance * _s_k_phi_parameters.k * cos(angle - _s_k_phi_parameters.phi));
                 _capstans[i]->set_length(tendon_length - _s_k_phi_parameters.s);
             }
-            break;
     }
     _updates--;
 }
