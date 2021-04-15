@@ -4,7 +4,7 @@ Hose::Hose(S_K_Phi parameters, double tendon_distance, uint16_t update_time)
     : _parameters(parameters),
     _tendon_distance(tendon_distance),
     _num_capstans(0),
-    _parameter_increments(0, 0, 0),
+    _parameter_increments(0.0, 0.0, 0.0),
     _update_time(update_time),
     _updates(0),
     _timer(0) { 
@@ -31,7 +31,7 @@ void Hose::init(bool reset_zero) {
     {
         _parameters = get_parameters();
         S_K_Phi parameters(_parameters.s, .0000001, _parameters.phi);
-        set_parameters(parameters, 5000);
+        set_parameters(parameters, 5000.0);
     }
 }
 
@@ -55,7 +55,7 @@ S_K_Phi Hose::get_parameters() {
     k /= _tendon_distance * (l_1 + l_2 + l_3);
     // phi = ratio of bend towards x to bend towards y
     double x = -l_1 - l_2 * -0.5 - l_3 * -0.5;
-    double y = -l_2 * sqrt(3)/2 - l_3 * -sqrt(3)/2;
+    double y = -l_2 * sqrt(3.0) / 2.0 - l_3 * -sqrt(3.0) / 2.0;
     double phi = atan2(y, x);
     S_K_Phi parameters(s, k, phi);
     return parameters;
@@ -90,7 +90,7 @@ void Hose::update_parameters() {
     _parameters.phi += _parameter_increments.phi;
     for (uint8_t i = 0; i < _num_capstans; i++)
     {
-        double angle = ((i * (360 / _num_capstans)) - 360) * M_PI / 180;
+        double angle = ((i * (360.0 / _num_capstans)) - 360.0) * M_PI / 180.0;
         double tendon_length = _parameters.s * (1 - _tendon_distance * _parameters.k * cos(angle - _parameters.phi));
         _capstans[i]->set_length(tendon_length - _parameters.s);
     }
