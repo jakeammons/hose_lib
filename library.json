@@ -1,6 +1,6 @@
 {
     "name": "hose_lib",
-    "version": "1.1.3",
+    "version": "1.2.0",
     "description": "Provides continuum kinematics, capstan tendon control, relative encoding from an absolute encoder, and calibration of home position",
     "keywords": "continuum, kinematics, hose, tendons, capstans, encoding",
     "repository":
