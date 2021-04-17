@@ -12,6 +12,8 @@
 #define TENDON_DISTANCE 30.0 // distance between tendon and backbone [mm]
 #define UPDATE_TIME 20.0 // time between interpolation updates [ms]
 #define DEFAULT_S 825.0 // starting backbone length [mm]
+#define DEFAULT_U 0.0 // starting u parameter
+#define DEFAULT_V 0.0 // starting v parameter
 #define DEFAULT_K .0000001 // starting curvature [mm^-1]
 #define DEFAULT_PHI 0.0 // starting bending plane [radians]
 
