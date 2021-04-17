@@ -1,6 +1,6 @@
 #include "kinematics.h"
 
-Kinematics::Kinematics(S_U_V parameters, double tendon_distance, uint16_t update_time)
+Kinematics::Kinematics(const S_U_V &parameters, double tendon_distance, uint16_t update_time)
     : _mode(S_U_V_MODE),
     _s_u_v_parameters(parameters),
     _s_k_phi_parameters(0.0, 0.0, 0.0),
@@ -13,7 +13,7 @@ Kinematics::Kinematics(S_U_V parameters, double tendon_distance, uint16_t update
     _timer(0) { 
     }
 
-Kinematics::Kinematics(S_K_Phi parameters, double tendon_distance, uint16_t update_time)
+Kinematics::Kinematics(const S_K_Phi &parameters, double tendon_distance, uint16_t update_time)
     : _mode(S_K_PHI_MODE),
     _s_u_v_parameters(0.0, 0.0, 0.0),
     _s_k_phi_parameters(parameters),
@@ -27,12 +27,17 @@ Kinematics::Kinematics(S_K_Phi parameters, double tendon_distance, uint16_t upda
     }
 
 // add capstan/tendon to kinematic model and control
-void Kinematics::add_capstan(Capstan *capstan) {
+void Kinematics::add_capstan(Capstan &capstan) {
     if (_num_capstans < MAX_CAPSTANS)
     {
-        _capstans[_num_capstans] = capstan;
+        _capstans[_num_capstans] = &capstan;
         _num_capstans++;
     }
+}
+
+// returns pointer to capstan
+Capstan *Kinematics::get_capstan(uint8_t id) {
+    return _capstans[id];
 }
 
 // initializes capstan positions
@@ -115,7 +120,7 @@ void Kinematics::get_parameters(S_K_Phi &parameters) {
 // interpolates parameter changes over set duration
 // parameters s [mm], u, and v
 // duration in ms
-void Kinematics::set_parameters(S_U_V parameters, double duration) {
+void Kinematics::set_parameters(const S_U_V &parameters, double duration) {
     _mode = S_U_V_MODE;
     _updates = duration / _update_time;
     _s_u_v_parameter_increments.s = (parameters.s - _s_u_v_parameters.s) / _updates;
@@ -128,7 +133,7 @@ void Kinematics::set_parameters(S_U_V parameters, double duration) {
 // interpolates parameter changes over set duration
 // parameters s, k, and phi in mm, mm^-1, and radians
 // duration in ms
-void Kinematics::set_parameters(S_K_Phi parameters, double duration) {
+void Kinematics::set_parameters(const S_K_Phi &parameters, double duration) {
     _mode = S_K_PHI_MODE;
     _updates = duration / _update_time;
     _s_k_phi_parameter_increments.s = (parameters.s - _s_k_phi_parameters.s) / _updates;

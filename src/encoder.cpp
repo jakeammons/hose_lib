@@ -98,5 +98,5 @@ void QuadratureEncoder::init(uint8_t id, bool reset_zero) {
 // relative to position at startup
 // returns degrees
 double QuadratureEncoder::get_angle() {
-    return ((double) encoder.getEncoderCount() / _ppr) * 360;
+    return ((double) encoder.getEncoderCount() / _ppr) * 360.0;
 }
