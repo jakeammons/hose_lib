@@ -1,11 +1,35 @@
 #include "capstan.h"
 
+// constructor for motor drivers with fault and current sense pins
 Capstan::Capstan(uint8_t dir, uint8_t pwm, uint8_t flt, uint8_t cs, double kp, double ki, double kd, double circumference, double max_velocity, int direction, Encoder *enc)
     : _id(0),
     _dir(dir),
     _pwm(pwm),
     _flt(flt),
     _cs(cs),
+    _setpoint(0.0),
+    _input(0.0),
+    _output(0.0),
+    _kp(kp),
+    _ki(ki),
+    _kd(kd),
+    _circumference(circumference),
+    _max_velocity(max_velocity),
+    encoder(enc),
+    pid(&_input, &_output, &_setpoint, _kp, _ki, _kd, direction) {
+        pinMode(_dir, OUTPUT);
+        pinMode(_pwm, OUTPUT);
+        pinMode(_flt, INPUT);
+        pinMode(_cs, INPUT);
+    }
+
+// constructor for motor drivers without fault and current sense pins
+Capstan::Capstan(uint8_t dir, uint8_t pwm, double kp, double ki, double kd, double circumference, double max_velocity, int direction, Encoder *enc)
+    : _id(0),
+    _dir(dir),
+    _pwm(pwm),
+    _flt(256),
+    _cs(256),
     _setpoint(0.0),
     _input(0.0),
     _output(0.0),
@@ -69,6 +93,7 @@ void Capstan::update() {
 
 void Capstan::check_faults() {
     if (digitalRead(_flt) == LOW) {
+        Serial.println();
         Serial.print("FAULT: MOTOR ");
         Serial.println(_id + 1);
     }

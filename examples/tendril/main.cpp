@@ -8,18 +8,12 @@ void process_command();
 void print_parameters();
 void print_currents();
 
-Encoder *encoder_1 = new MagneticEncoder(MUX_ADDR, M1_ENC);
-Encoder *encoder_2 = new MagneticEncoder(MUX_ADDR, M2_ENC);
-Encoder *encoder_3 = new MagneticEncoder(MUX_ADDR, M3_ENC);
-Encoder *encoder_4 = new MagneticEncoder(MUX_ADDR, M4_ENC);
-Encoder *encoder_5 = new MagneticEncoder(MUX_ADDR, M5_ENC);
-Encoder *encoder_6 = new MagneticEncoder(MUX_ADDR, M6_ENC);
-Capstan capstan_1(M1_DIR, M1_PWM, M1_FLT, M1_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_1);
-Capstan capstan_2(M2_DIR, M2_PWM, M2_FLT, M2_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_2);
-Capstan capstan_3(M3_DIR, M3_PWM, M3_FLT, M3_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_3);
-Capstan capstan_4(M4_DIR, M4_PWM, M4_FLT, M4_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_4);
-Capstan capstan_5(M5_DIR, M5_PWM, M5_FLT, M5_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_5);
-Capstan capstan_6(M6_DIR, M6_PWM, M6_FLT, M6_CS, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_6);
+Encoder *encoder_1 = new QuadratureEncoder(M1_ENA, M1_ENB, PPR);
+Encoder *encoder_2 = new QuadratureEncoder(M2_ENA, M2_ENB, PPR);
+Encoder *encoder_3 = new QuadratureEncoder(M3_ENA, M3_ENB, PPR);
+Capstan capstan_1(M1_DIR, M1_PWM, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_1);
+Capstan capstan_2(M2_DIR, M2_PWM, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_2);
+Capstan capstan_3(M3_DIR, M3_PWM, KP, KI, KD, CIRCUMFERENCE, MAX_VELOCITY, DIRECT, encoder_3);
 S_U_V parameters(DEFAULT_S, DEFAULT_U, DEFAULT_V);
 Kinematics kinematics(parameters, TENDON_DISTANCE, UPDATE_TIME);
 
@@ -28,12 +22,7 @@ void setup() {
     kinematics.add_capstan(capstan_1);
     kinematics.add_capstan(capstan_2);
     kinematics.add_capstan(capstan_3);
-    kinematics.add_capstan(capstan_4);
-    kinematics.add_capstan(capstan_5);
-    kinematics.add_capstan(capstan_6);
     // calculates current configuration and interpolates to home position
-    // IMPORTANT: phi stays the same after interpolation
-    // you may want to interpolate to new phi after robot returns home
     // argument of false means don't reset encoder zero positions
     kinematics.init(false);
 }
@@ -41,11 +30,11 @@ void setup() {
 void loop() {
     process_command();
     kinematics.update();
-    print_currents();
     Serial.println();
 }
 
 void setup_communication() {
+    // change pwm frequency to something above audible range
     // change pin 3 pwm frequency to 31kHz
     TCCR3B = (TCCR3B & B11111000) | B00000001;
     // change pin 6 pwm frequency to 31kHz
@@ -93,17 +82,4 @@ void print_parameters() {
     Serial.print(parameters.u, 4);
     Serial.print(", v: ");
     Serial.print(parameters.v, 4);
-}
-
-void print_currents() {
-    for (uint8_t i = 0; i < 6; i++) {
-        uint16_t adc_value = kinematics.get_capstan(i)->get_current();
-        double adc_voltage = adc_value * 5.0 / 1024.0;
-        double current = adc_voltage / CS_CONVERSION + CS_OFFSET;
-        Serial.print("motor ");
-        Serial.print(i + 1);
-        Serial.print(" current: ");
-        Serial.print(current);
-        Serial.print(", ");
-    }
 }
