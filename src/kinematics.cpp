@@ -1,6 +1,6 @@
 #include "kinematics.h"
 
-Kinematics::Kinematics(S_U_V parameters, double tendon_distance, uint16_t update_time)
+Kinematics::Kinematics(const S_U_V &parameters, double tendon_distance, uint16_t update_time)
     : _mode(S_U_V_MODE),
     _s_u_v_parameters(parameters),
     _s_k_phi_parameters(0.0, 0.0, 0.0),
@@ -13,7 +13,7 @@ Kinematics::Kinematics(S_U_V parameters, double tendon_distance, uint16_t update
     _timer(0) { 
     }
 
-Kinematics::Kinematics(S_K_Phi parameters, double tendon_distance, uint16_t update_time)
+Kinematics::Kinematics(const S_K_Phi &parameters, double tendon_distance, uint16_t update_time)
     : _mode(S_K_PHI_MODE),
     _s_u_v_parameters(0.0, 0.0, 0.0),
     _s_k_phi_parameters(parameters),
@@ -27,12 +27,17 @@ Kinematics::Kinematics(S_K_Phi parameters, double tendon_distance, uint16_t upda
     }
 
 // add capstan/tendon to kinematic model and control
-void Kinematics::add_capstan(Capstan *capstan) {
+void Kinematics::add_capstan(Capstan &capstan) {
     if (_num_capstans < MAX_CAPSTANS)
     {
-        _capstans[_num_capstans] = capstan;
+        _capstans[_num_capstans] = &capstan;
         _num_capstans++;
     }
+}
+
+// returns pointer to capstan
+Capstan *Kinematics::get_capstan(uint8_t id) {
+    return _capstans[id];
 }
 
 // initializes capstan positions
@@ -47,15 +52,15 @@ void Kinematics::init(bool reset_zero) {
     {
         if (_mode == S_U_V_MODE)
         {
-                get_parameters(_s_u_v_parameters);
-                S_U_V parameters(_s_u_v_parameters.s, 0.0, 0.0);
-                set_parameters(parameters, 5000.0);
+            get_parameters(_s_u_v_parameters);
+            S_U_V parameters(_s_u_v_parameters.s, 0.0, 0.0);
+            set_parameters(parameters, 5000.0);
         }
         else if (_mode == S_K_PHI_MODE)
         {
-                get_parameters(_s_k_phi_parameters);
-                S_K_Phi parameters(_s_k_phi_parameters.s, .0000001, _s_k_phi_parameters.phi);
-                set_parameters(parameters, 5000.0);
+            get_parameters(_s_k_phi_parameters);
+            S_K_Phi parameters(_s_k_phi_parameters.s, .0000001, _s_k_phi_parameters.phi);
+            set_parameters(parameters, 5000.0);
         }
     }
 }
@@ -115,7 +120,7 @@ void Kinematics::get_parameters(S_K_Phi &parameters) {
 // interpolates parameter changes over set duration
 // parameters s [mm], u, and v
 // duration in ms
-void Kinematics::set_parameters(S_U_V parameters, double duration) {
+void Kinematics::set_parameters(const S_U_V &parameters, double duration) {
     _mode = S_U_V_MODE;
     _updates = duration / _update_time;
     _s_u_v_parameter_increments.s = (parameters.s - _s_u_v_parameters.s) / _updates;
@@ -128,7 +133,7 @@ void Kinematics::set_parameters(S_U_V parameters, double duration) {
 // interpolates parameter changes over set duration
 // parameters s, k, and phi in mm, mm^-1, and radians
 // duration in ms
-void Kinematics::set_parameters(S_K_Phi parameters, double duration) {
+void Kinematics::set_parameters(const S_K_Phi &parameters, double duration) {
     _mode = S_K_PHI_MODE;
     _updates = duration / _update_time;
     _s_k_phi_parameter_increments.s = (parameters.s - _s_k_phi_parameters.s) / _updates;
@@ -151,27 +156,27 @@ void Kinematics::update() {
 void Kinematics::update_parameters() {
     if (_mode == S_U_V_MODE)
     {
-            _s_u_v_parameters.s += _s_u_v_parameter_increments.s;
-            _s_u_v_parameters.u += _s_u_v_parameter_increments.u;
-            _s_u_v_parameters.v += _s_u_v_parameter_increments.v;
-            double l[3];
-            l[0] = _s_u_v_parameters.s - _tendon_distance * _s_u_v_parameters.v;
-            l[1] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v + sqrt(3) * _s_u_v_parameters.u);
-            l[2] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v - sqrt(3) * _s_u_v_parameters.u);
-            for (uint8_t i = 0; i < 3; i++)
-                _capstans[i]->set_length(l[i] - _s_u_v_parameters.s);
+        _s_u_v_parameters.s += _s_u_v_parameter_increments.s;
+        _s_u_v_parameters.u += _s_u_v_parameter_increments.u;
+        _s_u_v_parameters.v += _s_u_v_parameter_increments.v;
+        double l[3];
+        l[0] = _s_u_v_parameters.s - _tendon_distance * _s_u_v_parameters.v;
+        l[1] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v + sqrt(3) * _s_u_v_parameters.u);
+        l[2] = _s_u_v_parameters.s + .5 * _tendon_distance * (_s_u_v_parameters.v - sqrt(3) * _s_u_v_parameters.u);
+        for (uint8_t i = 0; i < 3; i++)
+            _capstans[i]->set_length(l[i] - _s_u_v_parameters.s);
     }
     else if (_mode == S_K_PHI_MODE)
     {
-            _s_k_phi_parameters.s += _s_k_phi_parameter_increments.s;
-            _s_k_phi_parameters.k += _s_k_phi_parameter_increments.k;
-            _s_k_phi_parameters.phi += _s_k_phi_parameter_increments.phi;
-            for (uint8_t i = 0; i < _num_capstans; i++)
-            {
-                double angle = ((i * (360.0 / _num_capstans)) - 360.0) * M_PI / 180.0;
-                double tendon_length = _s_k_phi_parameters.s * (1 - _tendon_distance * _s_k_phi_parameters.k * cos(angle - _s_k_phi_parameters.phi));
-                _capstans[i]->set_length(tendon_length - _s_k_phi_parameters.s);
-            }
+        _s_k_phi_parameters.s += _s_k_phi_parameter_increments.s;
+        _s_k_phi_parameters.k += _s_k_phi_parameter_increments.k;
+        _s_k_phi_parameters.phi += _s_k_phi_parameter_increments.phi;
+        for (uint8_t i = 0; i < _num_capstans; i++)
+        {
+            double angle = ((i * (360.0 / _num_capstans)) - 360.0) * M_PI / 180.0;
+            double tendon_length = _s_k_phi_parameters.s * (1 - _tendon_distance * _s_k_phi_parameters.k * cos(angle - _s_k_phi_parameters.phi));
+            _capstans[i]->set_length(tendon_length - _s_k_phi_parameters.s);
+        }
     }
     _updates--;
 }

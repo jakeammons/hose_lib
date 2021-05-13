@@ -26,7 +26,7 @@ class MagneticEncoder : public Encoder {
         double _current_angle; // absolute angle of current reading [deg]
         int8_t _revolutions; // number of full revolutions relative to zero
         AMS_5600 ams5600;
-        double calc_angle();
+        void calc_angle();
         void select_channel();
 };
 
