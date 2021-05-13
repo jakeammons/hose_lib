@@ -1,5 +1,5 @@
 // capstan position control gains
-#define KP 12.0
+#define KP 36
 #define KI 0.0
 #define KD 0.0
 

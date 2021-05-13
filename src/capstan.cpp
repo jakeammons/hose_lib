@@ -56,11 +56,6 @@ void Capstan::init(uint8_t id, bool reset_zero) {
     pid.SetMode(AUTOMATIC);
 }
 
-// updates setpoint in terms of relative capstan angle
-void Capstan::set_angle(double angle) {
-    _setpoint = angle;
-}
-
 // returns tendon length using last know relative angle
 // does not recalculate current relative angle
 // returns mm
@@ -88,7 +83,7 @@ void Capstan::update() {
     else
         digitalWrite(_dir, HIGH);
     analogWrite(_pwm, abs(_output));
-    check_faults();
+    // check_faults();
 }
 
 void Capstan::check_faults() {

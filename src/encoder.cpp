@@ -40,12 +40,13 @@ void MagneticEncoder::init(uint8_t id, bool reset_zero) {
 // relative to home position
 // returns degrees
 double MagneticEncoder::get_angle() {
+    calc_angle();
     return _revolutions * 360.0 + _current_angle;
 }
 
 // gets angle from encoder
 // converts absolute angle to relative angle
-double MagneticEncoder::calc_angle()
+void MagneticEncoder::calc_angle()
 {
     // get current value (0-4096) from encoder and convert to angle (0-360)
     select_channel();
@@ -61,8 +62,6 @@ double MagneticEncoder::calc_angle()
     if (_current_angle > 270.0 && _previous_angle < 90.0)
         _revolutions--;
     _previous_angle = _current_angle;
-    // return angle relative to zero
-    return (_revolutions * 360.0) + _current_angle;
 }
 
 // write mux channel address to i2c bus

@@ -39,8 +39,6 @@ void setup() {
 void loop() {
     process_command();
     kinematics.update();
-    print_currents();
-    Serial.println();
 }
 
 void setup_communication() {
